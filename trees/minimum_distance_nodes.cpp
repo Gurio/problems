@@ -3,6 +3,8 @@
 #include <iostream>
 #include <limits>
 #include <tuple>
+#include <limits>
+#include <algorithm>
 
 using namespace std;
 
@@ -13,42 +15,30 @@ struct TreeNode {
      TreeNode(int x) : val(x), left(NULL), right(NULL) {}
  };
 
-void minDiffInBstHelper (TreeNode* root, int& min_diff, int& min_right, int& max_left){
-    if (!root) {min_diff = 0; return;}
-    int min_diff_ = numeric_limits<int>::max();
-    int min_right_ = numeric_limits<int>::max();
-    int max_left_ = numeric_limits<int>::min();
-
-    if (!root->left) {
-        max_left = max(root->val,max_left);
-    } else {
-        int dummy;
-        minDiffInBstHelper (root->left, min_diff_, min_right_, max_left_);
-        int new_diff = root->val - max_left_;
-        min_diff = min(min_diff_, new_diff);
-        max_left = max(max_left_,root->val);
-        cout << "left: " << min_diff_ << " v " << new_diff << " = " << root->val << "-" << max_left_;
+tuple<int, int, int> minDiffInBstHelper (TreeNode* root){
+    int min_diff, left_diff, right_diff, min_, max_;
+    int min_diff_l, min_left, max_left;
+    int min_diff_r, min_right, max_right;
+    min_diff_l = min_diff_r = min_left = min_right = left_diff = right_diff = numeric_limits<int>::max();
+    max_left = max_right = numeric_limits<int>::min();
+    if (!root) {return make_tuple(0, 0, 0);}
+    if (root->left) {
+        tie(min_diff_l, min_left, max_left) = minDiffInBstHelper(root->left);
+        left_diff = root->val - max_left;
     }
-    if (!root->right) {
-        min_right = min(root->val,min_right);
-    } else {
-        int dummy;
-        minDiffInBstHelper (root->right, min_diff_, min_right_, max_left_);
-        int new_diff = min_right_ - root->val;
-        min_diff = min(min_diff,min(min_diff_, new_diff));
-        min_right = min(min_right_,root->val);
-        cout << "right: " << min_diff_ << " v " << new_diff << " = " << min_right_ << "-" << root->val;
+    if (root->right) {
+        tie(min_diff_r, min_right, max_right) = minDiffInBstHelper(root->right);
+        right_diff = min_right - root->val;
     }
-    min_right = min(min_right_,root->val);
-    max_left = max(max_left_,root->val);
-    cout  << "; maxleft: " << max_left << "; minright: " << min_right  << endl;
+    min_ = min({root->val, min_left, min_right}); //? only val and min_left?
+    max_ = max({root->val, max_left, max_right}); //? only val and max_right?
+    min_diff = min({min_diff_l, min_diff_r, left_diff, right_diff});
+    return make_tuple(min_diff, min_, max_);
 }
 
 int minDiffInBST(TreeNode* root) {
-    int min_diff = numeric_limits<int>::max();
-    int min_right = numeric_limits<int>::max();
-    int max_left = numeric_limits<int>::min();
-    minDiffInBstHelper (root, min_diff, min_right, max_left);
+    int min_diff, min_right, max_left;
+    tie(min_diff, min_right, max_left) = minDiffInBstHelper (root);
     return min_diff;
 }
 
