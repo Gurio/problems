@@ -1,6 +1,7 @@
 /*
  *
-DIGITES ARE REVERSED!
+https://leetcode.com/problems/add-two-numbers/
+DIGITS ARE REVERSED!
 ======================
 there is no need to append zeroes, or compare length
 So please don't
