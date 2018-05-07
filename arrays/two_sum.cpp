@@ -12,7 +12,7 @@ using namespace std;
 
 vector <int> twoSum (vector<int>& nums, int target){
     unordered_map<int,int> num_pos;
-    for (size_t i = 0; i<nums.size(); i++){
+    for (int i = 0; i<nums.size(); i++){
         int desired_num = target - nums[i];
         int addend_idx = num_pos[desired_num];
         if (addend_idx != 0){
