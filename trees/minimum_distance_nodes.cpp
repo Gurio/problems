@@ -1,6 +1,6 @@
 /*
  *
- https://leetcode.com/problems/minimum-distance-between-bst-nodes/description/
+ https://leetcode.com/problems/minimum-distance-between-bst-nodes
  *
  */
 
