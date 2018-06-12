@@ -19,69 +19,28 @@ void print_tuple (tuple<int,int,int> t){
 }
 
 vector<pair<int, int>> getSkyline(vector<vector<int>>& buildings) {
-    if (buildings.empty()) {return {};}
-    vector<pair<int, int>> result;
-    map<int, tuple<int,int,int>> starts;
-    map<int, tuple<int,int,int>> ends;
-    int max_end = 0;
-    for (auto building:buildings){
-        int start = building[0];
-        int end = building[1];
-        int height = building[2];
-        starts[start] = make_tuple(start, end, height);
-        ends[end] = make_tuple(start, end, height);
-        max_end = end;
+    map<int, vector<int>> heightToCoordsMapping;
+    multiset<int> heights = {0};
+    for(auto b: buildings) {
+        heightToCoordsMapping[b[0]].push_back(b[2]);
+        heightToCoordsMapping[b[1]].push_back(-b[2]);
     }
-    buildings.insert(buildings.begin(),vector<int>({0,max_end,0}));
-
-    for (auto building:buildings){
-        int start = building[0];
-        int end = building[1];
-        int height = building[2];
-        auto start_it = starts.upper_bound(start);
-        auto end_it = ends.upper_bound(start);
-        set<tuple<int,int,int>> covers;
-        while (end_it != ends.end() && get<0>(end_it->second) < end ){
-            int cover_height = get<2>(end_it->second);
-            if (cover_height > height){
-                covers.insert(end_it->second);
-                //print_tuple (end_it->second);
-            }             
-            ++end_it;
-        }
-        while (start_it != starts.end() && get<0>(start_it->second) < end ){
-            int cover_height = get<2>(start_it->second);
-            if (cover_height > height){
-                covers.insert(start_it->second);
-                //print_tuple (start_it->second);
-            }             
-            ++start_it;
-        }
-        //cout << endl;
-        for (auto cover:covers){
-            int cov_start = get<0>(cover);
-            int cov_end = get<1>(cover);
-            int cov_height = get<2>(cover);
-            if (cov_start >= start){
-                result.push_back(make_pair(cov_start, cov_height));
+    vector<pair<int,int>> res;
+    for(auto elem: heightToCoordsMapping) {
+        for (auto h: elem.second) {
+            if (h > 0) heights.insert(h);
+            else {
+                auto itr = heights.find(-h);
+                if(itr!=heights.end()){
+                    heights.erase(itr);
+                }
             }
-            if (cov_end <= end){
-                result.push_back(make_pair(cov_end, height));                
-            }
-            start = max (start, cov_end);
+        }
+        if (res.empty() || *heights.rbegin() != res.back().second) {
+            res.push_back(make_pair(elem.first, *heights.rbegin()));
         }
     }
-    sort(result.begin(),result.end());
-    vector<pair<int,int>> new_res;
-    for (size_t i=1;i<result.size(); i++){
-        if (result[i].first == result[i-1].first || result[i].second == result[i-1].second){
-
-        } else {
-            new_res.push_back(result[i-1]);
-        }
-    }
-    new_res.push_back(result[result.size()-1]);
-    return new_res;
+    return res;
 }
 
 
